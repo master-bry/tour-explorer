@@ -17,6 +17,7 @@ More information about the plans for version 4 can be found in [CodeIgniter 4](h
 You can read the [user guide](https://codeigniter.com/user_guide/)
 corresponding to the latest version of the framework.
 
+
 ## Installation & updates
 
 `composer create-project codeigniter4/appstarter` then `composer update` whenever
