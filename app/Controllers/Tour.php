@@ -10,8 +10,8 @@ class Tour extends Controller
     public function index()
     {
         $tourModel = new TourModel();
-        $category = $this->request->getGet('category') ?? null;
-        $search = $this->request->getGet('search') ?? null;
+        $category = $this->request->getGet('category');
+        $search = $this->request->getGet('search');
 
         $data = [
             'tours' => $tourModel->getTours($category, $search),
@@ -28,10 +28,21 @@ class Tour extends Controller
         $tour = $tourModel->find($id);
 
         if (!$tour) {
+            session()->setFlashdata('error', 'Tour not found.');
             return redirect()->to('/tours');
         }
 
-        $data = ['tour' => $tour];
+        // Get related tours (same category)
+        $relatedTours = $tourModel->where('category', $tour['category'])
+                                 ->where('id !=', $id)
+                                 ->limit(3)
+                                 ->findAll();
+
+        $data = [
+            'tour' => $tour,
+            'relatedTours' => $relatedTours
+        ];
+        
         return view('tours/show', $data);
     }
 }

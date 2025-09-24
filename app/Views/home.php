@@ -1,109 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tour Explorer Tz - Tanzania Tours</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Tour Explorer Tz</a>
-        <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="/tours">Tours</a></li>
-            <li class="nav-item"><a class="nav-link" href="/reviews">Reviews</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
-            <li class="nav-item"><a class="nav-link" href="/auth/login">Login</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
-        </ul>
-    </nav>
+<?= $this->extend('layout') ?>
 
+<?= $this->section('content') ?>
+
+<!-- Hero Section -->
+<section class="hero-section text-center">
     <div class="container">
-        <h1>#1 Operator in Tanzania</h1>
-        <p>Discover the wonders of Tanzania with Tour Explorer Tz.</p>
+        <h1 class="display-4 fw-bold mb-4">Discover the Magic of Tanzania</h1>
+        <p class="lead mb-4">Experience unforgettable adventures with Tanzania's #1 tour operator</p>
+        <a href="/tours" class="btn btn-secondary btn-lg">Explore Our Tours</a>
+    </div>
+</section>
 
-        <!-- Popular Adventures -->
-        <h2>Our Popular Adventures</h2>
+<!-- Popular Tours -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title">Our Popular Adventures</h2>
         <div class="row">
             <?php foreach ($tours as $tour): ?>
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="<?= $tour['image'] ?>" class="card-img-top" alt="<?= $tour['title'] ?>">
-                        <div class="card-body">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <img src="<?= $tour['image'] ?: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80' ?>" 
+                             class="card-img-top" alt="<?= $tour['title'] ?>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= $tour['title'] ?></h5>
-                            <p class="card-text"><?= $tour['description'] ?></p>
-                            <p>Price: $<?= $tour['price'] ?></p>
-                            <a href="/tour/<?= $tour['id'] ?>" class="btn btn-primary">View Details</a>
+                            <p class="card-text flex-grow-1"><?= character_limiter($tour['description'], 100) ?></p>
+                            <div class="mt-auto">
+                                <p class="h5 text-primary">$<?= number_format($tour['price']) ?></p>
+                                <a href="/tour/<?= $tour['id'] ?>" class="btn btn-primary w-100">View Details</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
+    </div>
+</section>
 
-        <!-- Categories Filter -->
-        <div class="mt-4">
+<!-- Categories -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="section-title">Tour Categories</h2>
+        <div class="row">
             <?php foreach ($categories as $cat): ?>
-                <a href="/tours?category=<?= $cat === 'All' ? '' : $cat ?>" class="btn btn-outline-primary"><?= $cat ?></a>
+                <?php if ($cat !== 'All'): ?>
+                    <div class="col-md-3 mb-3">
+                        <a href="/tours?category=<?= urlencode($cat) ?>" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-<?= strtolower($cat) === 'safari' ? 'binoculars' : (strtolower($cat) === 'kilimanjaro' ? 'mountain' : 'map') ?> me-2"></i>
+                            <?= $cat ?>
+                        </a>
+                    </div>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
+    </div>
+</section>
 
-        <!-- Achievements -->
-        <h2>Achievements</h2>
-        <ul>
+<!-- Achievements -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title">Our Achievements</h2>
+        <div class="row text-center">
             <?php foreach ($achievements as $ach): ?>
-                <li><?= $ach ?></li>
+                <div class="col-md-6 mb-4">
+                    <div class="p-4 border rounded">
+                        <i class="fas fa-trophy fa-2x text-secondary mb-3"></i>
+                        <h5><?= $ach ?></h5>
+                    </div>
+                </div>
             <?php endforeach; ?>
-        </ul>
+        </div>
+    </div>
+</section>
 
-        <!-- Impact -->
-        <h2>Our Impact</h2>
-        <ul>
-            <?php foreach ($impact as $imp): ?>
-                <li><?= $imp ?></li>
-            <?php endforeach; ?>
-        </ul>
-
-        <!-- Reviews -->
-        <h2>Customer Reviews</h2>
+<!-- Reviews -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center">What Our Customers Say</h2>
         <div class="row">
             <?php foreach ($reviews as $review): ?>
-                <div class="col-md-6">
-                    <div class="card">
+                <div class="col-md-4 mb-4">
+                    <div class="card review-card h-100">
                         <div class="card-body">
-                            <h5><?= $review['name'] ?></h5>
-                            <p><?= $review['review_text'] ?></p>
-                            <p>Rating: <?= $review['rating'] ?>/5 | Date: <?= $review['date'] ?></p>
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5 class="card-title"><?= $review['name'] ?></h5>
+                                <div class="text-warning">
+                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <i class="fas fa-star<?= $i <= $review['rating'] ? '' : '-o' ?>"></i>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+                            <p class="card-text">"<?= $review['review_text'] ?>"</p>
+                            <small class="text-muted"><?= date('M j, Y', strtotime($review['date'])) ?></small>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
-
-        <!-- Contact Form -->
-        <h2>Plan Your Trip</h2>
-        <form action="/contact" method="post">
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-            <div class="mb-3">
-                <label for="message" class="form-label">Message</label>
-                <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="privacy" name="privacy" required>
-                <label class="form-check-label" for="privacy"> Agree to Privacy Policy</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Send Inquiry</button>
-        </form>
     </div>
+</section>
 
-    <!-- WhatsApp Chat -->
-    <a href="https://wa.me/0659864096?text=Hello from Tour Explorer Tz" class="whatsapp-btn">Chat on WhatsApp</a>
+<!-- Contact Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title text-center">Plan Your Tanzanian Adventure</h2>
+                <form action="/contact" method="post" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="invalid-feedback">Please provide your name.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please provide a valid email.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Your Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        <div class="invalid-feedback">Please enter your message.</div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="privacy" name="privacy" required>
+                        <label class="form-check-label" for="privacy">I agree to the Privacy Policy</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Send Inquiry</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<!-- WhatsApp Button -->
+<a href="https://wa.me/255659864096?text=Hello%20Tour%20Explorer%20Tz,%20I'm%20interested%20in%20your%20tours" 
+   class="whatsapp-btn" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+<?= $this->endSection() ?>
