@@ -14,11 +14,11 @@ class Home extends Controller
         $reviewModel = new ReviewModel();
 
         $data = [
-            'tours' => $tourModel->getTours(), // All tours
-            'reviews' => $reviewModel->findAll(5), // Latest 5 reviews
-            'categories' => ['All', 'Safari', 'Kilimanjaro'],
-            'achievements' => ['World Travel Awards 2025', 'B Corp Certified'],
-            'impact' => ['Trees Planted: 15,300+', 'Jobs Created: 250+'],
+            'tours' => $tourModel->getFeaturedTours(6), // Latest 6 tours
+            'reviews' => $reviewModel->orderBy('created_at', 'DESC')->findAll(6), // Latest 6 reviews
+            'categories' => ['Safari', 'Kilimanjaro', 'Zanzibar', 'Cultural'],
+            'achievements' => ['World Travel Awards 2025', 'B Corp Certified', 'Sustainable Tourism Award'],
+            'impact' => ['Trees Planted: 15,300+', 'Jobs Created: 250+', 'Communities Supported: 12+'],
         ];
 
         return view('home', $data);
