@@ -27,6 +27,7 @@
                     <?php endif; ?>
 
                     <form action="<?= base_url('auth/login') ?>" method="post">
+                        <?= csrf_field() ?>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email" 
@@ -42,7 +43,7 @@
                     </form>
                     
                     <div class="text-center mt-3">
-                        <p><strong>Demo credentials:</strong><br>admin@tourexplorer.tz / admin123</p>
+                        <p><strong>Demo credentials:</strong><br>admin@tourexplorer.com / admin123</p>
                         <a href="<?= base_url('auth/register') ?>">Don't have an account? Register</a>
                     </div>
                 </div>
