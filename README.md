@@ -43,28 +43,26 @@ Ensure the following extensions are enabled:
 
 ### Step 1: Clone and Install Dependencies
 
-```bash'''
 # Clone the repository
 git clone <your-repository-url>
 cd tour-web
 
 # Install PHP dependencies
 composer install
-Step 2: Environment Configuration
+### Step 2: Environment Configuration
 Copy the environment file:
 
-bash
-
+'''bash'''
 cp env .env
 Edit the .env file with your configuration:
 
-ini
+#ini
 
-# App Configuration
+## App Configuration
 CI_ENVIRONMENT = development
 app.baseURL = 'http://localhost:8080'
 
-# Database Configuration
+## Database Configuration
 database.default.hostname = localhost
 database.default.database = tour_explorer_db
 database.default.username = your_username
@@ -86,13 +84,16 @@ Seed with initial data:
 bash
 
 php spark db:seed MythAuthSeeder
-Step 4: Web Server Configuration
+
+----------
+### Step 4: Web Server Configuration
 Important Security Note
 index.php has been moved to the public folder for enhanced security. Configure your web server to point to the public folder, not the project root.
 
 Apache Configuration (.htaccess)
 The public/.htaccess file should contain:
 
+------
 apache
 
 RewriteEngine On
@@ -102,6 +103,7 @@ RewriteRule ^(.*)$ index.php/$1 [L]
 Virtual Host Example (Apache)
 apache
 
+-----
 <VirtualHost *:80>
     ServerName tourexplorer.test
     DocumentRoot "/path/to/tour-web/public"
@@ -111,6 +113,8 @@ apache
         Require all granted
     </Directory>
 </VirtualHost>
+
+-----
 Nginx Configuration
 nginx
 
@@ -129,7 +133,9 @@ server {
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
     }
 }
-Step 5: Development Server
+
+------
+### Step 5: Development Server
 For quick testing, use PHP's built-in server:
 
 bash
@@ -148,6 +154,8 @@ User Account
 Email: user@tourexplorer.com
 Password: user123
 Access: Standard user features
+
+-----
 Project Structure
 axapta
 
@@ -279,8 +287,11 @@ Fork the repository
 Create a feature branch
 Commit your changes
 Push to the branch
-Create a Pull Request
+Create a Pull Request\
+
+------------
 License
 This project is licensed under the MIT License.
 
+----------------------------------------
 Happy Exploring Tanzania! 🎉🏔️
