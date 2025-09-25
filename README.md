@@ -1,73 +1,297 @@
+# Tour Explorer Tanzania 🗺️
 
-# tour-web
+A comprehensive travel exploration platform built with CodeIgniter 4 for discovering and booking tours in Tanzania.
 
-# CodeIgniter 4 Application Starter
+## What is CodeIgniter 4?
 
-## What is CodeIgniter?
+CodeIgniter is a lightweight, fast, flexible, and secure PHP full-stack web framework. More information can be found on the [official site](https://codeigniter.com).
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Features
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- **User Authentication**: Secure login and registration system
+- **Tour Management**: Browse and book a variety of tours
+- **Admin Dashboard**: Manage tours, users, and bookings
+- **Responsive Design**: Accessible on all devices
+- **Booking System**: Simple tour reservation process
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Prerequisites
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+### Server Requirements
 
+- **PHP 8.1 or higher** (Required)
+- **Composer** (PHP dependency manager)
+- **MySQL 5.7 or higher** or **MariaDB**
+- **Web server** (Apache/Nginx with mod_rewrite)
 
-## Installation & updates
+### Required PHP Extensions
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
-
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
-
-## Setup
-
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
-
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
-
-PHP version 8.1 or higher is required, with the following extensions installed:
-
+Ensure the following extensions are enabled:
 - [intl](http://php.net/manual/en/intl.requirements.php)
 - [mbstring](http://php.net/manual/en/mbstring.installation.php)
+- json (enabled by default)
+- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) for MySQL
+- [libcurl](http://php.net/manual/en/curl.requirements.php) for CURL requests
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+> ⚠️ **Warning**: 
+> - PHP 7.4 reached end of life on November 28, 2022
+> - PHP 8.0 reached end of life on November 26, 2023  
+> - PHP 8.1 end of life: December 31, 2025
+> 
+> **Always use supported PHP versions for security.**
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## Installation Guide
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+### Step 1: Clone and Install Dependencies
+
+# Clone the repository
+git clone <your-repository-url>
+cd tour-web
+
+# Install PHP dependencies
+composer install
+### Step 2: Environment Configuration
+Copy the environment file:
+
+'''bash'''
+cp env .env
+Edit the .env file with your configuration:
+
+#ini
+
+## App Configuration
+CI_ENVIRONMENT = development
+app.baseURL = 'http://localhost:8080'
+
+## Database Configuration
+database.default.hostname = localhost
+database.default.database = tour_explorer_db
+database.default.username = your_username
+database.default.password = your_password
+database.default.DBDriver = MySQLi
+Step 3: Database Setup
+Create your database:
+
+sql
+
+CREATE DATABASE tour_explorer_db;
+Run database migrations:
+
+bash
+
+php spark migrate
+Seed with initial data:
+
+bash
+
+php spark db:seed MythAuthSeeder
+
+----------
+### Step 4: Web Server Configuration
+Important Security Note
+index.php has been moved to the public folder for enhanced security. Configure your web server to point to the public folder, not the project root.
+
+Apache Configuration (.htaccess)
+The public/.htaccess file should contain:
+
+------
+apache
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+Virtual Host Example (Apache)
+apache
+
+-----
+<VirtualHost *:80>
+    ServerName tourexplorer.test
+    DocumentRoot "/path/to/tour-web/public"
+    <Directory "/path/to/tour-web/public">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+-----
+Nginx Configuration
+nginx
+
+server {
+    listen 80;
+    server_name tourexplorer.test;
+    root /path/to/tour-web/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+    }
+}
+
+------
+### Step 5: Development Server
+For quick testing, use PHP's built-in server:
+
+bash
+
+php spark serve
+Visit: http://localhost:8080
+
+Default Login Credentials
+After seeding, use these credentials:
+
+Admin Account
+Email: admin@tourexplorer.com
+Password: admin123
+Access: Full administrative privileges
+User Account
+Email: user@tourexplorer.com
+Password: user123
+Access: Standard user features
+
+-----
+Project Structure
+axapta
+
+tour-web/
+├── app/                    # Application code
+│   ├── Controllers/       # Application controllers
+│   ├── Models/            # Database models
+│   ├── Views/             # Template files
+│   ├── Database/          # Migrations and seeds
+│   └── Config/            # Configuration files
+├── public/                 # Web root (point server here)
+│   ├── css/               # Stylesheets
+│   ├── js/                # JavaScript files
+│   ├── uploads/           # File uploads
+│   └── index.php          # Front controller
+├── writable/              # Logs, cache, sessions
+└── vendor/                # Composer dependencies
+Database Management
+Migrations
+bash
+
+# Check migration status
+php spark migrate:status
+
+# Run migrations
+php spark migrate
+
+# Rollback last migration
+php spark migrate:rollback
+
+# Create new migration
+php spark make:migration CreateToursTable
+Seeding
+bash
+
+# Run main seeder
+php spark db:seed MythAuthSeeder
+
+# Run all seeders
+php spark db:seed --all
+
+# Create new seeder
+php spark make:seeder TourSeeder
+Common Commands
+Development
+bash
+
+# Start development server
+php spark serve
+
+# Clear cache
+php spark cache:clear
+
+# List all routes
+php spark routes
+
+# Help with commands
+php spark help
+Maintenance
+bash
+
+# Set production environment
+# Edit .env: CI_ENVIRONMENT = production
+
+# Optimize for production
+php spark optimize
+
+# Install without dev dependencies
+composer install --no-dev --optimize-autoloader
+Troubleshooting
+Common Issues
+404 Errors
+
+Ensure the web server points to the public folder
+Check if mod_rewrite is enabled (Apache)
+Verify the .htaccess file exists in the public folder
+Database Connection Issues
+
+Verify credentials in the .env file
+Ensure the database server is running
+Check if the database exists
+Permission Errors
+
+bash
+
+chmod -R 755 writable/
+chmod 755 public/uploads/
+Seeder Errors
+
+bash
+
+# Reset and reseed
+php spark db:seed MythAuthSeeder --force
+Debug Mode
+For development, enable debug mode in the .env file:
+
+ini
+
+CI_ENVIRONMENT = development
+Check logs in writable/logs/ for detailed error information.
+
+Production Deployment
+Update environment:
+
+ini
+
+CI_ENVIRONMENT = production
+app.baseURL = 'https://yourdomain.com'
+Optimize performance:
+
+bash
+
+composer install --no-dev --optimize-autoloader
+php spark optimize
+Set secure permissions:
+
+bash
+
+chmod -R 755 writable/
+chmod 644 .env
+Configure your web server to point to the public directory.
+
+Support
+Documentation: CodeIgniter 4 User Guide
+Forum: CodeIgniter Forum
+Issues: Check GitHub issues for known bugs
+Contributing
+Fork the repository
+Create a feature branch
+Commit your changes
+Push to the branch
+Create a Pull Request\
+
+------------
+License
+This project is licensed under the MIT License.
+
+----------------------------------------
+Happy Exploring Tanzania! 🎉🏔️
