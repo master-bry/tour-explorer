@@ -27,11 +27,11 @@
                     <div class="d-flex gap-4 mb-4">
                         <div>
                             <i class="fas fa-clock text-primary me-2"></i>
-                            <strong><?= $tour['duration'] ? $tour['duration'] . ' days' : 'Flexible' ?></strong>
+                            <strong><?= isset($tour['duration']) && $tour['duration'] ? $tour['duration'] . ' days' : 'Flexible' ?></strong>
                         </div>
                         <div>
                             <i class="fas fa-users text-primary me-2"></i>
-                            <strong><?= $tour['max_people'] ? 'Max ' . $tour['max_people'] . ' people' : 'Group tours available' ?></strong>
+                            <strong><?= isset($tour['max_people']) && $tour['max_people'] ? 'Max ' . $tour['max_people'] . ' people' : 'Group tours available' ?></strong>
                         </div>
                     </div>
 
@@ -85,7 +85,9 @@
                              class="card-img-top" alt="<?= $relatedTour['title'] ?>" style="height: 200px; object-fit: cover;">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= $relatedTour['title'] ?></h5>
-                            <p class="card-text flex-grow-1"><?= character_limiter($relatedTour['description'], 80) ?></p>
+                            <p class="card-text flex-grow-1">
+                                <?= strlen($relatedTour['description']) > 80 ? substr($relatedTour['description'], 0, 80) . '...' : $relatedTour['description'] ?>
+                            </p>
                             <div class="mt-auto">
                                 <p class="h5 text-primary">$<?= number_format($relatedTour['price']) ?></p>
                                 <a href="/tour/<?= $relatedTour['id'] ?>" class="btn btn-outline-primary w-100">View Tour</a>

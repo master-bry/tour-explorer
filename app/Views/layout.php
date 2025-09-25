@@ -146,22 +146,24 @@
                 </li>
             </ul>
             <ul class="navbar-nav">
-                <?php if (session()->get('is_logged_in')): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('admin') ?>">Admin</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('auth/logout') ?>">Logout</a>
-                    </li>
-                <?php else: ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('auth/login') ?>">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="<?= base_url('auth/register') ?>">Sign Up</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
+    <?php if (service('auth')->check()): ?>
+        <?php if (service('authorization')->inGroup('admin', service('auth')->id())): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url('admin') ?>">Admin</a>
+            </li>
+        <?php endif; ?>
+        <li class="nav-item">
+            <a class="nav-link" href="<?= base_url('logout') ?>">Logout (<?= service('auth')->user()->username ?>)</a>
+        </li>
+    <?php else: ?>
+        <li class="nav-item">
+            <a class="nav-link" href="<?= base_url('login') ?>">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-primary" href="<?= base_url('register') ?>">Sign Up</a>
+        </li>
+    <?php endif; ?>
+</ul>
         </div>
     </div>
 </nav>

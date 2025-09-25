@@ -9,20 +9,21 @@ use Config\Services;
 
 class Admin extends Controller
 {
+    protected $helpers = ['auth', 'authorization'];
+
     public function index()
     {
-        // Check if user is logged in
-        if (!session()->get('is_logged_in')) {
-            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
-        }
-
+        // Myth:Auth filter will handle authentication and authorization
         $tourModel = new TourModel();
         $reviewModel = new ReviewModel();
+
+        $user = service('auth')->user();
 
         $data = [
             'title' => 'Admin Dashboard - Tour Explorer Tz',
             'tours' => $tourModel->findAll(),
             'reviews' => $reviewModel->findAll(),
+            'user' => $user
         ];
 
         return view('admin/dashboard', $data);
@@ -30,11 +31,8 @@ class Admin extends Controller
 
     public function addTour()
     {
-        // Check if user is logged in
-        if (!session()->get('is_logged_in')) {
-            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
-        }
-
+        // Myth:Auth filter handles the admin check
+        
         if ($this->request->getMethod() === 'post') {
             $validation = Services::validation();
             

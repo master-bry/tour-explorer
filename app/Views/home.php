@@ -1,6 +1,7 @@
 <?= $this->extend('layout') ?>
 
 <?= $this->section('content') ?>
+
 <!-- Hero Section -->
 <section class="hero-section text-center">
     <div class="container">
@@ -22,7 +23,9 @@
                              class="card-img-top" alt="<?= $tour['title'] ?>" style="height: 200px; object-fit: cover;">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= $tour['title'] ?></h5>
-                            <p class="card-text flex-grow-1"><?= character_limiter($tour['description'], 100) ?></p>
+                            <p class="card-text flex-grow-1">
+                                <?= strlen($tour['description']) > 100 ? substr($tour['description'], 0, 100) . '...' : $tour['description'] ?>
+                            </p>
                             <div class="mt-auto">
                                 <p class="h5 text-primary">$<?= number_format($tour['price']) ?></p>
                                 <a href="/tour/<?= $tour['id'] ?>" class="btn btn-primary w-100">View Details</a>

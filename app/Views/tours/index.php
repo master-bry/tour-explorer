@@ -17,8 +17,8 @@
 
     <!-- Category Filter -->
     <div class="mb-4">
-        <a href="./tours" class="btn btn-outline-primary <?= !$category ? 'active' : '' ?>">All Tours</a>
-        <?php foreach (['Safari', 'Kilimanjaro'] as $cat): ?>
+        <a href="/tours" class="btn btn-outline-primary <?= !$category ? 'active' : '' ?>">All Tours</a>
+        <?php foreach (['Safari', 'Kilimanjaro', 'Zanzibar', 'Cultural'] as $cat): ?>
             <a href="/tours?category=<?= urlencode($cat) ?>" 
                class="btn btn-outline-primary <?= $category === $cat ? 'active' : '' ?>">
                 <?= $cat ?>
@@ -33,7 +33,7 @@
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <h3>No tours found</h3>
                 <p>Try adjusting your search criteria or browse all tours.</p>
-                <a href="./tours" class="btn btn-primary">View All Tours</a>
+                <a href="/tours" class="btn btn-primary">View All Tours</a>
             </div>
         <?php else: ?>
             <?php foreach ($tours as $tour): ?>
@@ -44,7 +44,9 @@
                         <div class="card-body d-flex flex-column">
                             <span class="badge bg-secondary mb-2 align-self-start"><?= $tour['category'] ?></span>
                             <h5 class="card-title"><?= $tour['title'] ?></h5>
-                            <p class="card-text flex-grow-1"><?= character_limiter($tour['description'], 120) ?></p>
+                            <p class="card-text flex-grow-1">
+                                <?= strlen($tour['description']) > 120 ? substr($tour['description'], 0, 120) . '...' : $tour['description'] ?>
+                            </p>
                             <div class="mt-auto">
                                 <p class="h4 text-primary mb-3">$<?= number_format($tour['price']) ?></p>
                                 <a href="/tour/<?= $tour['id'] ?>" class="btn btn-primary w-100">View Details & Book</a>
