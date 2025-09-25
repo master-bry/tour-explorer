@@ -122,48 +122,61 @@
 </head>
 <body>
     <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="<?= base_url() ?>">
-            <i class="fas fa-mountain me-2"></i>Tour Explorer Tz
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url() ?>">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('tours') ?>">Tours</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('reviews') ?>">Reviews</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('contact') ?>">Contact</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav">
-    <?php if (service('auth')->check()): ?>
-        <?php if (service('authorization')->inGroup('admin', service('auth')->id())): ?>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= base_url('admin') ?>">Admin</a>
-            </li>
-        <?php endif; ?>
-        <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('logout') ?>">Logout (<?= service('auth')->user()->username ?>)</a>
-        </li>
-    <?php else: ?>
-        <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('login') ?>">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="btn btn-primary" href="<?= base_url('register') ?>">Sign Up</a>
-        </li>
-    <?php endif; ?>
-</ul>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-mountain me-2"></i>Tour Explorer Tz
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tours">Tours</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reviews">Reviews</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <?php 
+                    // Simple session-based authentication check
+                    $isLoggedIn = session()->get('is_logged_in');
+                    $isAdmin = session()->get('is_admin');
+                    $username = session()->get('username');
+                    ?>
+                    
+                    <?php if ($isLoggedIn): ?>
+                        <?php if ($isAdmin): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin">Admin</a>
+                            </li>
+                        <?php endif; ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/logout">
+                                Logout (<?= $username ?: 'User' ?>)
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary" href="/auth/register">Sign Up</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
         </div>
     </div>
 </nav>

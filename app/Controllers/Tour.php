@@ -13,10 +13,26 @@ class Tour extends Controller
         $category = $this->request->getGet('category');
         $search = $this->request->getGet('search');
 
+        // Basic filtering
+        if ($category) {
+            $tours = $tourModel->where('category', $category)->findAll();
+        } else {
+            $tours = $tourModel->findAll();
+        }
+
+        // Basic search
+        if ($search) {
+            $tours = array_filter($tours, function($tour) use ($search) {
+                return stripos($tour['title'], $search) !== false || 
+                       stripos($tour['description'], $search) !== false;
+            });
+        }
+
         $data = [
-            'tours' => $tourModel->getTours($category, $search),
+            'title' => 'Our Tours - Tour Explorer Tz',
+            'tours' => $tours,
             'category' => $category,
-            'search' => $search,
+            'search' => $search
         ];
 
         return view('tours/index', $data);
@@ -32,17 +48,11 @@ class Tour extends Controller
             return redirect()->to('/tours');
         }
 
-        // Get related tours (same category)
-        $relatedTours = $tourModel->where('category', $tour['category'])
-                                 ->where('id !=', $id)
-                                 ->limit(3)
-                                 ->findAll();
-
         $data = [
-            'tour' => $tour,
-            'relatedTours' => $relatedTours
+            'title' => $tour['title'] . ' - Tour Explorer Tz',
+            'tour' => $tour
         ];
-        
+
         return view('tours/show', $data);
     }
 }
