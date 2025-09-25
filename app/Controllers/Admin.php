@@ -11,15 +11,16 @@ class Admin extends Controller
 {
     public function index()
     {
-        // Check if user is admin (you might want to use proper authentication)
-        if (!session()->get('is_logged_in') || !session()->get('is_admin')) {
-            return redirect()->to('/auth/login')->with('error', 'Please login as administrator.');
+        // Check if user is logged in
+        if (!session()->get('is_logged_in')) {
+            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
         }
 
         $tourModel = new TourModel();
         $reviewModel = new ReviewModel();
 
         $data = [
+            'title' => 'Admin Dashboard - Tour Explorer Tz',
             'tours' => $tourModel->findAll(),
             'reviews' => $reviewModel->findAll(),
         ];
@@ -29,8 +30,9 @@ class Admin extends Controller
 
     public function addTour()
     {
-        if (!session()->get('is_logged_in') || !session()->get('is_admin')) {
-            return redirect()->to('/auth/login')->with('error', 'Please login as administrator.');
+        // Check if user is logged in
+        if (!session()->get('is_logged_in')) {
+            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
         }
 
         if ($this->request->getMethod() === 'post') {
@@ -42,7 +44,7 @@ class Admin extends Controller
                 'description' => 'required|min_length[10]',
                 'price' => 'required|numeric',
                 'itinerary' => 'required',
-                'image' => 'permit_empty|valid_url'
+                'image' => 'permit_empty|valid_url_strict'
             ]);
 
             if ($validation->withRequest($this->request)->run()) {
@@ -60,17 +62,96 @@ class Admin extends Controller
                 ];
 
                 if ($tourModel->insert($data)) {
-                    session()->setFlashdata('success', 'Tour added successfully!');
-                    return redirect()->to('/admin');
+                    return redirect()->to('/admin')->with('success', 'Tour added successfully!');
                 } else {
-                    session()->setFlashdata('error', 'Failed to add tour. Please try again.');
+                    return redirect()->back()->with('error', 'Failed to add tour. Please try again.');
                 }
             } else {
-                session()->setFlashdata('errors', $validation->getErrors());
-                return redirect()->back()->withInput();
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
             }
         }
 
-        return view('admin/add_tour');
+        $data = [
+            'title' => 'Add New Tour - Admin'
+        ];
+
+        return view('admin/add_tour', $data);
+    }
+
+    public function editTour($id)
+    {
+        // Check if user is logged in
+        if (!session()->get('is_logged_in')) {
+            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
+        }
+
+        $tourModel = new TourModel();
+        $tour = $tourModel->find($id);
+
+        if (!$tour) {
+            return redirect()->to('/admin')->with('error', 'Tour not found.');
+        }
+
+        if ($this->request->getMethod() === 'post') {
+            $validation = Services::validation();
+            
+            $validation->setRules([
+                'title' => 'required|min_length[5]|max_length[200]',
+                'category' => 'required|in_list[Safari,Kilimanjaro,Zanzibar,Cultural]',
+                'description' => 'required|min_length[10]',
+                'price' => 'required|numeric',
+                'itinerary' => 'required',
+                'image' => 'permit_empty|valid_url_strict'
+            ]);
+
+            if ($validation->withRequest($this->request)->run()) {
+                $data = [
+                    'title' => $this->request->getPost('title'),
+                    'category' => $this->request->getPost('category'),
+                    'description' => $this->request->getPost('description'),
+                    'price' => $this->request->getPost('price'),
+                    'itinerary' => $this->request->getPost('itinerary'),
+                    'image' => $this->request->getPost('image'),
+                    'duration' => $this->request->getPost('duration'),
+                    'max_people' => $this->request->getPost('max_people'),
+                ];
+
+                if ($tourModel->update($id, $data)) {
+                    return redirect()->to('/admin')->with('success', 'Tour updated successfully!');
+                } else {
+                    return redirect()->back()->with('error', 'Failed to update tour.');
+                }
+            } else {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+        }
+
+        $data = [
+            'title' => 'Edit Tour - Admin',
+            'tour' => $tour
+        ];
+
+        return view('admin/edit_tour', $data);
+    }
+
+    public function deleteTour($id)
+    {
+        // Check if user is logged in
+        if (!session()->get('is_logged_in')) {
+            return redirect()->to('/auth/login')->with('error', 'Please login to access admin area.');
+        }
+
+        $tourModel = new TourModel();
+        $tour = $tourModel->find($id);
+
+        if (!$tour) {
+            return redirect()->to('/admin')->with('error', 'Tour not found.');
+        }
+
+        if ($tourModel->delete($id)) {
+            return redirect()->to('/admin')->with('success', 'Tour deleted successfully!');
+        } else {
+            return redirect()->to('/admin')->with('error', 'Failed to delete tour.');
+        }
     }
 }

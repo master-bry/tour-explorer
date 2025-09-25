@@ -6,7 +6,6 @@ use CodeIgniter\Router\RouteCollection;
 
 // Public routes
 $routes->get('/', 'Home::index');
-$routes->get('home', 'Home::index'); // Add this line
 $routes->get('tours', 'Tour::index');
 $routes->get('tour/(:num)', 'Tour::show/$1');
 $routes->get('reviews', 'Review::index');
@@ -17,15 +16,16 @@ $routes->post('contact/send', 'Contact::send');
 $routes->get('admin', 'Admin::index');
 $routes->get('admin/addTour', 'Admin::addTour');
 $routes->post('admin/addTour', 'Admin::addTour');
+$routes->get('admin/edit/(:num)', 'Admin::editTour/$1');
+$routes->post('admin/edit/(:num)', 'Admin::editTour/$1');
+$routes->get('admin/delete/(:num)', 'Admin::deleteTour/$1');
 
 // Authentication routes
-$routes->group('auth', function($routes) {
-    $routes->get('login', 'Auth::login');
-    $routes->post('login', 'Auth::login');
-    $routes->get('register', 'Auth::register');
-    $routes->post('register', 'Auth::register');
-    $routes->get('logout', 'Auth::logout');
-});
+$routes->get('auth/login', 'Auth::login');
+$routes->post('auth/login', 'Auth::login');
+$routes->get('auth/register', 'Auth::register');
+$routes->post('auth/register', 'Auth::register');
+$routes->get('auth/logout', 'Auth::logout');
 
 // Fallback for 404
 $routes->set404Override(function() {
