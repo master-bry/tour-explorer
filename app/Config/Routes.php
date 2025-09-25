@@ -6,13 +6,12 @@ use CodeIgniter\Router\RouteCollection;
 
 // Public routes
 $routes->get('/', 'Home::index');
+$routes->get('home', 'Home::index'); // Add this line
 $routes->get('tours', 'Tour::index');
 $routes->get('tour/(:num)', 'Tour::show/$1');
+$routes->get('reviews', 'Review::index');
 $routes->get('contact', 'Contact::index');
-$routes->post('contact/send', 'Contact::send'); // Changed from just 'contact'
-
-// Remove the reviews route for now since we don't have a Reviews controller
-// $routes->get('reviews', 'Review::index'); // Comment out until we create this
+$routes->post('contact/send', 'Contact::send');
 
 // Admin routes
 $routes->get('admin', 'Admin::index');
@@ -28,7 +27,8 @@ $routes->group('auth', function($routes) {
     $routes->get('logout', 'Auth::logout');
 });
 
-// Fallback for 404 - fixed version
+// Fallback for 404
 $routes->set404Override(function() {
-    return view('errors/html/error_404');
+    $data['title'] = 'Page Not Found';
+    return view('errors/html/error_404', $data);
 });

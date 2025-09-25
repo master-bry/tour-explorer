@@ -1,7 +1,6 @@
 <?= $this->extend('layout') ?>
 
 <?= $this->section('content') ?>
-
 <!-- Hero Section -->
 <section class="hero-section text-center">
     <div class="container">
@@ -105,7 +104,7 @@
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <h2 class="section-title text-center">Plan Your Tanzanian Adventure</h2>
-                <form action="/contact" method="post" class="needs-validation" novalidate>
+                <form action="/contact/send" method="post" class="needs-validation" novalidate>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label">Full Name</label>
@@ -133,13 +132,6 @@
         </div>
     </div>
 </section>
-
-<!-- WhatsApp Button -->
-<a href="https://wa.me/255659864096?text=Hello%20Tour%20Explorer%20Tz,%20I'm%20interested%20in%20your%20tours" 
-   class="whatsapp-btn" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
