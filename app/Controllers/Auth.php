@@ -10,45 +10,64 @@ class Auth extends Controller
     {
         // Check if already logged in
         if (session()->get('logged_in')) {
-            $redirectTo = session()->get('is_admin') ? '/admin' : '/';
+            $redirectTo = session()->get('is_admin') ? base_url('admin') : base_url();
             return redirect()->to($redirectTo);
         }
 
         if ($this->request->getMethod() === 'post') {
+            $validation = \Config\Services::validation();
+
+            $rules = [
+                'email' => 'required|valid_email',
+                'password' => 'required|min_length[6]'
+            ];
+
+            if (!$this->validate($rules)) {
+                return view('auth/login', [
+                    'title' => 'Login - Tour Explorer Tz',
+                    'validation' => $this->validator
+                ]);
+            }
+
             $email = $this->request->getPost('email');
             $password = $this->request->getPost('password');
-            
-            // Basic validation
-            if (empty($email) || empty($password)) {
-                return redirect()->back()->with('error', 'Email and password are required.');
-            }
-            
+
             $db = db_connect();
-            
+
             try {
-                // Use Myth:Auth table structure
                 $user = $db->table('users')
                           ->where('email', $email)
-                          ->where('active', 1) // Only active users
+                          ->where('active', 1)
                           ->get()
                           ->getRowArray();
-                
+
                 if ($user && password_verify($password, $user['password_hash'])) {
+                    // Check if user is admin
+                    $isAdmin = $db->table('auth_groups_users')
+                                 ->where('user_id', $user['id'])
+                                 ->where('group_id', 1)
+                                 ->countAllResults() > 0;
+
                     session()->set([
                         'logged_in' => true,
                         'user_id' => $user['id'],
                         'user_email' => $user['email'],
                         'username' => $user['username'],
-                        'is_admin' => $this->isUserAdmin($user['id'])
+                        'is_admin' => $isAdmin
                     ]);
-                    
-                    $redirectTo = session()->get('is_admin') ? '/admin' : '/';
+
+                    $redirectTo = $isAdmin ? base_url('admin') : base_url();
                     return redirect()->to($redirectTo)->with('success', 'Login successful!');
                 } else {
-                    return redirect()->back()->with('error', 'Invalid email or password.');
+                    return redirect()->back()
+                                   ->withInput()
+                                   ->with('error', 'Invalid email or password.');
                 }
             } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
+                log_message('error', 'Login error: ' . $e->getMessage());
+                return redirect()->back()
+                               ->withInput()
+                               ->with('error', 'An error occurred. Please try again.');
             }
         }
 
@@ -59,45 +78,43 @@ class Auth extends Controller
     {
         // Check if already logged in
         if (session()->get('logged_in')) {
-            return redirect()->to('/');
+            return redirect()->to(base_url());
         }
 
         if ($this->request->getMethod() === 'post') {
+            $validation = \Config\Services::validation();
+
+            $rules = [
+                'name' => 'required|min_length[3]|max_length[30]',
+                'email' => 'required|valid_email|is_unique[users.email]',
+                'password' => 'required|min_length[6]',
+                'confirm_password' => 'required|matches[password]'
+            ];
+
+            $messages = [
+                'email' => [
+                    'is_unique' => 'This email is already registered.'
+                ],
+                'confirm_password' => [
+                    'matches' => 'Passwords do not match.'
+                ]
+            ];
+
+            if (!$this->validate($rules, $messages)) {
+                return view('auth/register', [
+                    'title' => 'Register - Tour Explorer Tz',
+                    'validation' => $this->validator
+                ]);
+            }
+
             $name = $this->request->getPost('name');
             $email = $this->request->getPost('email');
             $password = $this->request->getPost('password');
-            $confirm_password = $this->request->getPost('confirm_password');
-            
-            // Validation
-            if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
-                return redirect()->back()->with('error', 'All fields are required.');
-            }
-            
-            if (strlen($password) < 6) {
-                return redirect()->back()->with('error', 'Password must be at least 6 characters long.');
-            }
-            
-            if ($password !== $confirm_password) {
-                return redirect()->back()->with('error', 'Passwords do not match.');
-            }
-            
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return redirect()->back()->with('error', 'Please provide a valid email address.');
-            }
-            
+
             $db = db_connect();
-            
+
             try {
-                // Check if email exists
-                $existing = $db->table('users')
-                              ->where('email', $email)
-                              ->countAllResults();
-                
-                if ($existing > 0) {
-                    return redirect()->back()->with('error', 'Email already registered.');
-                }
-                
-                // Use Myth:Auth table structure
+                // Insert user
                 $userData = [
                     'username' => $name,
                     'email' => $email,
@@ -106,46 +123,41 @@ class Auth extends Controller
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
-                
-                if ($db->table('users')->insert($userData)) {
-                    $userId = $db->insertID();
-                    
-                    // Add user to default group (user group)
+
+                $db->table('users')->insert($userData);
+                $userId = $db->insertID();
+
+                if ($userId) {
+                    // Add user to default user group (id = 2)
                     $db->table('auth_groups_users')->insert([
-                        'group_id' => 2, // user group
+                        'group_id' => 2,
                         'user_id' => $userId
                     ]);
-                    
-                    return redirect()->to('/auth/login')->with('success', 'Registration successful! Please login.');
-                } else {
-                    return redirect()->back()->with('error', 'Registration failed. Please try again.');
+
+                    log_message('info', 'New user registered: ' . $email . ' (ID: ' . $userId . ')');
+
+                    return redirect()->to(base_url('auth/login'))
+                                   ->with('success', 'Registration successful! Please login.');
                 }
+
+                return redirect()->back()
+                               ->withInput()
+                               ->with('error', 'Registration failed. Please try again.');
+
             } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
+                log_message('error', 'Registration error: ' . $e->getMessage());
+                return redirect()->back()
+                               ->withInput()
+                               ->with('error', 'An error occurred. Please try again.');
             }
         }
 
         return view('auth/register', ['title' => 'Register - Tour Explorer Tz']);
     }
 
-    private function isUserAdmin($userId)
-    {
-        $db = db_connect();
-        try {
-            $adminCheck = $db->table('auth_groups_users')
-                            ->where('user_id', $userId)
-                            ->where('group_id', 1) // admin group
-                            ->countAllResults();
-            
-            return $adminCheck > 0;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/')->with('success', 'Logged out successfully!');
+        return redirect()->to(base_url())->with('success', 'Logged out successfully!');
     }
 }
